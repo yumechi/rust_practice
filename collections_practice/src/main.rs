@@ -1,6 +1,9 @@
+use std::collections::HashMap;
+
 fn main() {
     vec_data();
     string_data();
+    hash_map_data();
 }
 
 fn vec_data() -> () {
@@ -101,5 +104,62 @@ fn string_data() -> () {
         // s1はムーブされ、もう使用できない
         let s3 = s1 + &s2;
         println!("s3 is {}", s3);
+    }
+}
+
+fn hash_map_data() {
+    {
+        let mut scores = HashMap::new();
+        scores.insert(String::from("Peko"), 10);
+        scores.insert(String::from("poru"), 5);
+        for (key, value) in &scores {
+            println!("{} の点数: {}", key, value);
+        }
+        let v = scores.get("poru");
+        println!("ぽるの点: {}", v.unwrap_or(&0));
+        println!("{:?}", scores);
+
+        // insertをもう一度すると上書きされる
+        scores.insert(String::from("poru"), 40);
+
+        // あるかどうかわからない場合はentryを使ってセットできる（すでにある場合は上書きされない）
+        scores.entry(String::from("poru")).or_insert(60);
+        scores.entry(String::from("nora")).or_insert(60);
+        println!("{:?}", scores);
+    }
+
+    {
+        let teams = vec![String::from("rushi"), String::from("tenchi")];
+        let init_scores = vec![10, 98];
+
+        // zipとか使って作れる
+        let scores: HashMap<_, _> = teams.iter().zip(init_scores.iter()).collect();
+        for (key, value) in &scores {
+            println!("{} の点数: {}", key, value);
+        }
+    }
+
+    {
+        // 変数の借用
+        let name = String::from("a");
+        let value = String::from("gura");
+
+        let mut map = HashMap::new();
+        map.insert(&name, &value);
+        // 参照を渡してしまうのでこれだとうまくいかない
+        // map.insert(name, value);
+        println!("{}, {}", name, value);
+    }
+
+    {
+        // hashmapの値を数え上げてみる
+        let mut map = HashMap::new();
+        let text = "peko miko peko miko peko miko peko nanora~~~";
+        for w in text.split_whitespace() {
+            let count = map.entry(w).or_insert(0);
+            // 参照外しが必要
+            *count += 1
+        }
+        println!("{:?}", map);
     }
 }
